@@ -231,7 +231,7 @@ function GeneratePageContent() {
 
   return (
     <PageLayout showLogoAsLink>
-      <div className="flex-1 flex min-w-0 overflow-hidden">
+      <div className="flex-1 flex min-w-0 overflow-hidden bg-grid">
         {/* Chat History Sidebar */}
         <ChatSidebar
           ref={chatSidebarRef}
@@ -298,8 +298,11 @@ function GeneratePageContent() {
 
 function LoadingFallback() {
   return (
-    <div className="flex h-screen w-screen items-center justify-center bg-background">
-      <Loader2 className="w-8 h-8 animate-spin text-foreground" />
+    <div className="flex h-screen w-screen items-center justify-center bg-background bg-grid">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-10 h-10 border-2 border-violet-glow/20 border-t-violet-glow rounded-full animate-spin" />
+        <span className="text-xs text-muted-foreground font-['Space_Grotesk',sans-serif]">Loading Video Agent...</span>
+      </div>
     </div>
   );
 }

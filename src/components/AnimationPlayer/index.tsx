@@ -90,9 +90,9 @@ export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
     if (isStreaming) {
       return (
         <div className="w-full aspect-video max-h-[calc(100%-80px)] flex flex-col justify-center items-center gap-4 bg-background-elevated rounded-lg overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.5)]">
-          <div className="w-12 h-12 border-4 border-border border-t-primary rounded-full animate-spin" />
+          <div className="w-12 h-12 border-4 border-violet-glow/20 border-t-violet-glow rounded-full animate-spin" />
           <p className="text-muted-foreground text-sm">
-            Waiting for code generation to finish...
+            Agent is generating your video...
           </p>
         </div>
       );
@@ -101,7 +101,7 @@ export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
     if (isCompiling) {
       return (
         <div className="w-full aspect-video max-h-[calc(100%-80px)] flex justify-center items-center bg-background-elevated rounded-lg overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.5)]">
-          <div className="w-12 h-12 border-4 border-border border-t-primary rounded-full animate-spin" />
+          <div className="w-12 h-12 border-4 border-violet-glow/20 border-t-violet-glow rounded-full animate-spin" />
         </div>
       );
     }
@@ -113,7 +113,7 @@ export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
     if (!Component) {
       return (
         <div className="w-full aspect-video max-h-[calc(100%-80px)] flex justify-center items-center bg-background-elevated rounded-lg overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.5)] text-muted-foreground-dim text-lg font-sans">
-          Select an example to get started
+          Describe a scene to begin
         </div>
       );
     }
@@ -158,8 +158,8 @@ export const AnimationPlayer: React.FC<AnimationPlayerProps> = ({
   return (
     <div className="flex flex-col bg-background min-w-0 h-full">
       <div className="w-full h-full flex flex-col gap-3">
-        <h2 className="text-sm font-medium text-muted-foreground shrink-0">
-          Video Preview
+        <h2 className="text-sm font-medium text-muted-foreground shrink-0 font-['Space_Grotesk',sans-serif]">
+          Preview
         </h2>
         {renderContent()}
       </div>

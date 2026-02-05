@@ -14,8 +14,8 @@ export function PageLayout({
   showLogoAsLink = false,
 }: PageLayoutProps) {
   return (
-    <div className="h-screen w-screen bg-background flex flex-col">
-      <header className="flex justify-between items-start py-8 px-12 shrink-0">
+    <div className="h-screen w-screen bg-background flex flex-col bg-grid">
+      <header className="flex justify-between items-center py-4 px-6 shrink-0 border-b border-violet-glow/5">
         <Header asLink={showLogoAsLink} />
         {rightContent}
       </header>

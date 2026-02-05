@@ -13,6 +13,8 @@ import {
 import { COMP_NAME } from "../../../../../types/constants";
 import { RenderRequest } from "../../../../../types/schema";
 import { executeApi } from "../../../../helpers/api-response";
+import type { z } from "zod";
+import type { RenderOptionsSchema } from "../../../../../types/constants";
 
 export const POST = executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(
   RenderRequest,
@@ -34,8 +36,22 @@ export const POST = executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(
       );
     }
 
+    const opts: Partial<z.infer<typeof RenderOptionsSchema>> = body.renderOptions ?? {};
+    const codec = opts.codec ?? "h264";
+
+    // Determine file extension based on codec
+    const extMap: Record<string, string> = {
+      h264: "mp4",
+      h265: "mp4",
+      vp8: "webm",
+      vp9: "webm",
+      prores: "mov",
+      gif: "gif",
+    };
+    const ext = extMap[codec] ?? "mp4";
+
     const result = await renderMediaOnLambda({
-      codec: "h264",
+      codec,
       functionName: speculateFunctionName({
         diskSizeInMb: DISK,
         memorySizeInMb: RAM,
@@ -48,8 +64,15 @@ export const POST = executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(
       framesPerLambda: 60,
       downloadBehavior: {
         type: "download",
-        fileName: "video.mp4",
+        fileName: `video.${ext}`,
       },
+      ...(opts.crf !== undefined && { crf: opts.crf }),
+      ...(opts.videoBitrate && { videoBitrate: opts.videoBitrate }),
+      ...(opts.audioBitrate && { audioBitrate: opts.audioBitrate }),
+      ...(opts.pixelFormat && { pixelFormat: opts.pixelFormat }),
+      ...(opts.imageFormat && { imageFormat: opts.imageFormat }),
+      ...(opts.jpegQuality !== undefined && { jpegQuality: opts.jpegQuality }),
+      ...(opts.proresProfile && codec === "prores" && { proresProfile: opts.proresProfile }),
     });
 
     return result;

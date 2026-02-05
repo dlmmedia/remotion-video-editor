@@ -76,7 +76,7 @@ This allows users to easily customize the animation.
 ## AVAILABLE IMPORTS
 
 \`\`\`tsx
-import { useCurrentFrame, useVideoConfig, AbsoluteFill, interpolate, spring, Sequence } from "remotion";
+import { useCurrentFrame, useVideoConfig, AbsoluteFill, interpolate, spring, Sequence, Video, OffthreadVideo, staticFile, Audio } from "remotion";
 import { TransitionSeries, linearTiming, springTiming } from "@remotion/transitions";
 import { fade } from "@remotion/transitions/fade";
 import { slide } from "@remotion/transitions/slide";
@@ -85,10 +85,33 @@ import { ThreeCanvas } from "@remotion/three";
 import { useState, useEffect } from "react";
 \`\`\`
 
+## VIDEO FILE SUPPORT
+
+When the user provides video files (referenced via staticFile()), use these patterns:
+
+- Use \`<OffthreadVideo>\` for better performance (recommended over \`<Video>\`):
+  \`\`\`tsx
+  <OffthreadVideo src={staticFile("/uploads/video-id.mp4")} style={{ width: "100%", height: "100%" }} />
+  \`\`\`
+- Use \`<Sequence>\` to control when videos appear in the timeline:
+  \`\`\`tsx
+  <Sequence from={0} durationInFrames={90}>
+    <OffthreadVideo src={staticFile("/uploads/clip1.mp4")} />
+  </Sequence>
+  <Sequence from={90} durationInFrames={60}>
+    <OffthreadVideo src={staticFile("/uploads/clip2.mp4")} />
+  </Sequence>
+  \`\`\`
+- Use \`startFrom\` prop to trim video start: \`<OffthreadVideo startFrom={30} />\`
+- Use \`endAt\` prop to trim video end: \`<OffthreadVideo endAt={120} />\`
+- Videos can be styled, scaled, and positioned like any element
+- Use \`volume\` prop for audio control: \`<OffthreadVideo volume={0.5} />\` or \`volume={0}\` to mute
+- Combine videos with overlaid text, shapes, and animations
+
 ## RESERVED NAMES (CRITICAL)
 
 NEVER use these as variable names - they shadow imports:
-- spring, interpolate, useCurrentFrame, useVideoConfig, AbsoluteFill, Sequence
+- spring, interpolate, useCurrentFrame, useVideoConfig, AbsoluteFill, Sequence, Video, OffthreadVideo, staticFile
 
 ## STYLING RULES
 

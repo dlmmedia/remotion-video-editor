@@ -122,8 +122,8 @@ export function LandingPageInput({
 
   return (
     <div className="flex flex-col items-center justify-center flex-1 px-4">
-      <h1 className="text-5xl font-bold text-white mb-10 text-center">
-        What do you want to create?
+      <h1 className="text-4xl sm:text-5xl font-extrabold text-white mb-10 text-center tracking-tight font-['Space_Grotesk',sans-serif]">
+        What will you <span className="bg-gradient-to-r from-violet-glow to-cyan-glow bg-clip-text text-transparent">create</span>?
       </h1>
 
       <form onSubmit={handleSubmit} className="w-full max-w-3xl">

@@ -2,7 +2,7 @@
 @import "tw-animate-css";
 
 :root {
-  --unfocused-border-color: #333;
+  --unfocused-border-color: #1e293b;
 
   --geist-border-radius: 5px;
   --geist-quarter-pad: 6px;
@@ -14,29 +14,35 @@
 
   --radius: 0.625rem;
 
-  /* Dark theme colors */
-  --background: #0a0a0a;
-  --background-elevated: #1a1a1a;
-  --background-editor: #1e1e1e;
-  --background-editor-header: #2d2d2d;
+  /* Video Agent - Space Theme */
+  --background: #030014;
+  --background-elevated: #0c0a1d;
+  --background-editor: #0f0d1f;
+  --background-editor-header: #1a1730;
   --background-error: #2a1a1a;
-  --foreground: #ffffff;
-  --primary: #0B84F3;
-  --primary-hover: #0a75d9;
+  --foreground: #e8e4f0;
+  --primary: #7c3aed;
+  --primary-hover: #6d28d9;
   --primary-foreground: #ffffff;
-  --secondary: #333;
-  --secondary-foreground: #ffffff;
-  --muted: #111;
-  --muted-foreground: #888;
-  --muted-foreground-dim: #666;
-  --accent: #2a2a2a;
-  --accent-foreground: #ffffff;
+  --secondary: #1e1b4b;
+  --secondary-foreground: #c4b5fd;
+  --muted: #0e0b1e;
+  --muted-foreground: #8b84a8;
+  --muted-foreground-dim: #5b5578;
+  --accent: #1a1740;
+  --accent-foreground: #c4b5fd;
   --destructive: #dc2626;
   --destructive-foreground: #f87171;
-  --border: #333;
-  --border-dim: #222;
-  --input: #0f0f0f;
-  --ring: #333;
+  --border: #1e1b4b;
+  --border-dim: #13102b;
+  --input: #0a0820;
+  --ring: #7c3aed;
+
+  /* Accent colors */
+  --violet-glow: #7c3aed;
+  --cyan-glow: #06b6d4;
+  --pink-glow: #ec4899;
+  --amber-glow: #f59e0b;
 }
 
 @theme {
@@ -54,21 +60,102 @@
   --font-geist: var(--geist-font);
   --animate-spinner: spinner 1.2s linear infinite;
   --animate-spin: spin 1s linear infinite;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-pulse-glow: pulse-glow 3s ease-in-out infinite;
+  --animate-gradient-x: gradient-x 15s ease infinite;
+  --animate-orbit: orbit 20s linear infinite;
+  --animate-twinkle: twinkle 4s ease-in-out infinite;
+  --animate-slide-up: slide-up 0.6s ease-out;
+  --animate-slide-down: slide-down 0.5s ease-out;
+  --animate-fade-in: fade-in 0.8s ease-out;
+  --animate-scale-in: scale-in 0.5s ease-out;
+  --animate-shimmer: shimmer 2s linear infinite;
+  --animate-beam: beam 8s linear infinite;
 
   @keyframes spinner {
-    0% {
-      opacity: 1;
-    }
-    100% {
-      opacity: 0.15;
-    }
+    0% { opacity: 1; }
+    100% { opacity: 0.15; }
   }
 
   @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
+    to { transform: rotate(360deg); }
   }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { opacity: 0.4; filter: blur(40px); }
+    50% { opacity: 0.7; filter: blur(60px); }
+  }
+
+  @keyframes gradient-x {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  @keyframes orbit {
+    from { transform: rotate(0deg) translateX(120px) rotate(0deg); }
+    to { transform: rotate(360deg) translateX(120px) rotate(-360deg); }
+  }
+
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.2; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.2); }
+  }
+
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slide-down {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes scale-in {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  @keyframes beam {
+    0% { transform: translateX(-100%) rotate(-45deg); }
+    100% { transform: translateX(100%) rotate(-45deg); }
+  }
+
+  @keyframes nebula-breathe {
+    0%, 100% { transform: scale(1); opacity: 0.6; }
+    50% { transform: scale(1.15); opacity: 1; }
+  }
+
+  @keyframes x-glow {
+    0%, 100% { filter: drop-shadow(0 0 20px rgba(124,58,237,0.8)) drop-shadow(0 0 40px rgba(6,182,212,0.4)) drop-shadow(0 0 60px rgba(124,58,237,0.3)); transform: scale(1); }
+    50% { filter: drop-shadow(0 0 30px rgba(124,58,237,1)) drop-shadow(0 0 55px rgba(6,182,212,0.6)) drop-shadow(0 0 80px rgba(124,58,237,0.5)); transform: scale(1.04); }
+  }
+
+  @keyframes x-particle {
+    0% { transform: translate(-50%, -50%) rotate(var(--particle-angle)) translateX(0px) scale(0); opacity: 0; }
+    20% { opacity: 1; transform: translate(-50%, -50%) rotate(var(--particle-angle)) translateX(30px) scale(1); }
+    80% { opacity: 0.5; transform: translate(-50%, -50%) rotate(var(--particle-angle)) translateX(70px) scale(0.6); }
+    100% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--particle-angle)) translateX(90px) scale(0); }
+  }
+
+  --animate-nebula-breathe: nebula-breathe 4s ease-in-out infinite;
+  --animate-x-glow: x-glow 4s ease-in-out infinite;
+  --animate-x-particle: x-particle 3s ease-out infinite;
 }
 
 body {
@@ -104,6 +191,10 @@ body {
   --color-border-dim: var(--border-dim);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-violet-glow: var(--violet-glow);
+  --color-cyan-glow: var(--cyan-glow);
+  --color-pink-glow: var(--pink-glow);
+  --color-amber-glow: var(--amber-glow);
 }
 
 @layer base {
@@ -113,4 +204,39 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e1b4b;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #312e81;
+}
+
+/* Grid background pattern */
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(124, 58, 237, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124, 58, 237, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* Noise texture overlay */
+.bg-noise::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
 }

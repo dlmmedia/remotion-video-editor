@@ -75,21 +75,21 @@ function DemoPageContent() {
   const categories = Array.from(new Set(examples.map((e) => e.category)));
 
   return (
-    <div className="h-screen w-screen bg-background flex flex-col [&_::-webkit-scrollbar]:w-1.5 [&_::-webkit-scrollbar-track]:bg-transparent [&_::-webkit-scrollbar-thumb]:bg-border [&_::-webkit-scrollbar-thumb]:rounded-full hover:[&_::-webkit-scrollbar-thumb]:bg-secondary">
+    <div className="h-screen w-screen bg-background bg-grid flex flex-col">
       {/* Header with logo */}
-      <header className="flex items-center gap-6 py-8 px-12 shrink-0">
-        <div className="flex flex-col gap-2">
+      <header className="flex items-center gap-6 py-4 px-6 shrink-0 border-b border-violet-glow/5">
+        <div className="flex flex-col gap-1.5">
           <Header asLink />
           <Link
             href="/"
             className="flex items-center gap-1.5 text-xs text-muted-foreground-dim hover:text-foreground transition-colors"
           >
             <ArrowLeft className="w-3 h-3" />
-            Back to Home
+            Back to Studio
           </Link>
         </div>
-        <div className="h-10 w-px bg-border" />
-        <h1 className="text-sm font-medium text-muted-foreground">Example Gallery</h1>
+        <div className="h-8 w-px bg-violet-glow/10" />
+        <h1 className="text-sm font-medium text-muted-foreground font-['Space_Grotesk',sans-serif]">Example Gallery</h1>
       </header>
 
       {/* Main content with sidebar */}
@@ -122,8 +122,8 @@ function DemoPageContent() {
                         onClick={() => handleExampleSelect(example.id)}
                         className={`w-full text-left p-3 rounded-lg border transition-all ${
                           selectedExample.id === example.id
-                            ? "border-primary bg-primary/10 text-foreground"
-                            : "border-border-dim bg-muted text-gray-400 hover:border-border hover:bg-background-elevated"
+                            ? "border-violet-glow/30 bg-violet-glow/10 text-foreground"
+                            : "border-border-dim bg-muted text-gray-400 hover:border-violet-glow/20 hover:bg-background-elevated"
                         }`}
                       >
                         <div className="font-medium text-sm">
@@ -196,7 +196,7 @@ export default function DemoPage() {
     <Suspense
       fallback={
         <div className="h-screen w-screen bg-background flex items-center justify-center">
-          <div className="w-8 h-8 border-2 border-border border-t-primary rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-violet-glow/20 border-t-violet-glow rounded-full animate-spin" />
         </div>
       }
     >
