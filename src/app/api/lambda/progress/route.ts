@@ -7,6 +7,9 @@ import { DISK, RAM, REGION, TIMEOUT } from "../../../../../config.mjs";
 import { ProgressResponse, ProgressRequest } from "../../../../../types/schema";
 import { executeApi } from "../../../../helpers/api-response";
 
+// Allow up to 60s for progress checks
+export const maxDuration = 60;
+
 export const POST = executeApi<ProgressResponse, typeof ProgressRequest>(
   ProgressRequest,
   async (req, body) => {

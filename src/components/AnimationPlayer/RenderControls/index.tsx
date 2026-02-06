@@ -59,7 +59,7 @@ export const RenderControls: React.FC<{
   }
 
   if (state.status === "rendering") {
-    return <ProgressBar progress={state.progress} />;
+    return <ProgressBar progress={state.progress} onCancel={undo} />;
   }
 
   if (state.status === "done") {

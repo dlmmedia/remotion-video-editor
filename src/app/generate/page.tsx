@@ -27,19 +27,15 @@ function GeneratePageContent() {
   const initialPrompt = searchParams.get("prompt") || "";
   const projectId = searchParams.get("projectId") || null;
 
-  // If we have an initial prompt from URL, start in streaming state
-  // so syntax highlighting is disabled from the beginning
-  const willAutoStart = Boolean(initialPrompt);
-
   const [durationInFrames, setDurationInFrames] = useState(
     examples[0]?.durationInFrames || 150,
   );
   const [fps, setFps] = useState(examples[0]?.fps || 30);
   const [currentFrame, setCurrentFrame] = useState(0);
-  const [isStreaming, setIsStreaming] = useState(willAutoStart);
-  const [streamPhase, setStreamPhase] = useState<StreamPhase>(
-    willAutoStart ? "reasoning" : "idle",
-  );
+  // Don't start streaming immediately — wait until we know whether the project
+  // already has saved code (otherwise a page refresh re-triggers generation).
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [streamPhase, setStreamPhase] = useState<StreamPhase>("idle");
   const [prompt, setPrompt] = useState(initialPrompt);
   const [hasAutoStarted, setHasAutoStarted] = useState(false);
   const [hasGeneratedOnce, setHasGeneratedOnce] = useState(false);
@@ -48,7 +44,8 @@ function GeneratePageContent() {
     type: GenerationErrorType;
     failedEdit?: EditOperation;
   } | null>(null);
-  const [projectLoaded, setProjectLoaded] = useState(!projectId || willAutoStart);
+  // Only mark as loaded immediately when there's no project to fetch
+  const [projectLoaded, setProjectLoaded] = useState(!projectId);
 
   // Self-correction state
   const [errorCorrection, setErrorCorrection] =
@@ -90,21 +87,33 @@ function GeneratePageContent() {
   const chatSidebarRef = useRef<ChatSidebarRef>(null);
 
   // ─── Load existing project data ─────────────────────────────────
+  // Always attempt to load the project when a projectId exists so that
+  // a page refresh correctly restores saved code instead of re-generating.
   useEffect(() => {
-    if (!projectId || willAutoStart) return; // New project, will be saved after generation
+    if (!projectId) return;
 
     let cancelled = false;
     async function loadProject() {
       try {
         const res = await fetch(`/api/projects/${projectId}`);
-        if (!res.ok || cancelled) return;
+        if (!res.ok || cancelled) {
+          // Project not found or request failed — still allow auto-start
+          setProjectLoaded(true);
+          return;
+        }
         const project: Project = await res.json();
+        if (cancelled) return;
+
+        const hasExistingCode = Boolean(project.code && project.code.trim());
 
         // Restore project state
-        if (project.code) {
+        if (hasExistingCode) {
           setCode(project.code);
           compileCode(project.code);
           setHasGeneratedOnce(true);
+          // Project already has code — prevent the auto-start effect from
+          // re-triggering generation (the key fix for the refresh bug).
+          setHasAutoStarted(true);
         }
         if (project.messages && project.messages.length > 0) {
           loadMessages(project.messages);
@@ -118,6 +127,16 @@ function GeneratePageContent() {
         if (project.fps) {
           setFps(project.fps);
         }
+
+        // If the project already has code, clean the URL to remove the
+        // prompt/model params so future refreshes don't look like new generations.
+        if (hasExistingCode && initialPrompt) {
+          const url = new URL(window.location.href);
+          url.searchParams.delete("prompt");
+          url.searchParams.delete("model");
+          window.history.replaceState({}, "", url.toString());
+        }
+
         setProjectLoaded(true);
       } catch (err) {
         console.error("Failed to load project:", err);
@@ -134,15 +153,17 @@ function GeneratePageContent() {
   }, []);
 
   // ─── Auto-save project state ────────────────────────────────────
+  // Include prompt so it's persisted even if the URL params get cleaned up.
   const autoSaveData = useMemo(
     () => ({
       code,
+      prompt,
       messages,
       durationInFrames,
       fps,
       status: "draft" as const,
     }),
-    [code, messages, durationInFrames, fps],
+    [code, prompt, messages, durationInFrames, fps],
   );
 
   useProjectAutoSave(
@@ -233,8 +254,23 @@ function GeneratePageContent() {
       const content = summary || "Generated your animation, any follow up edits?";
       addAssistantMessage(content, generatedCode, metadata);
       markAsAiGenerated();
+
+      // Clean the URL after the first generation so that a page refresh
+      // won't re-trigger generation — only projectId needs to remain.
+      if (projectId) {
+        try {
+          const url = new URL(window.location.href);
+          if (url.searchParams.has("prompt")) {
+            url.searchParams.delete("prompt");
+            url.searchParams.delete("model");
+            window.history.replaceState({}, "", url.toString());
+          }
+        } catch {
+          // Ignore URL manipulation errors
+        }
+      }
     },
-    [addAssistantMessage, markAsAiGenerated],
+    [addAssistantMessage, markAsAiGenerated, projectId],
   );
 
   // Cleanup debounce on unmount
@@ -274,10 +310,15 @@ function GeneratePageContent() {
     [],
   );
 
-  // Auto-trigger generation if prompt came from URL
+  // Auto-trigger generation if prompt came from URL.
+  // Must wait for projectLoaded so we know whether the project already has
+  // saved code (in which case hasAutoStarted will already be true).
   useEffect(() => {
-    if (initialPrompt && !hasAutoStarted && chatSidebarRef.current) {
+    if (initialPrompt && !hasAutoStarted && projectLoaded && chatSidebarRef.current) {
       setHasAutoStarted(true);
+      // Enter streaming UI state now that we've confirmed auto-start is needed
+      setIsStreaming(true);
+      setStreamPhase("reasoning");
       // Check for initial attached images from sessionStorage
       const storedImagesJson = sessionStorage.getItem("initialAttachedImages");
       let storedImages: string[] | undefined;
@@ -293,7 +334,7 @@ function GeneratePageContent() {
         chatSidebarRef.current?.triggerGeneration({ attachedImages: storedImages });
       }, 100);
     }
-  }, [initialPrompt, hasAutoStarted]);
+  }, [initialPrompt, hasAutoStarted, projectLoaded]);
 
   return (
     <PageLayout showLogoAsLink>

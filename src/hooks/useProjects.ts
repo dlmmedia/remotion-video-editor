@@ -217,31 +217,48 @@ export function useProjectAutoSave(
     };
   }, [projectId, data, saveNow, debounceMs]);
 
+  // Helper: flush unsaved changes via sendBeacon (survives page unload)
+  const flushViaSendBeacon = useCallback(() => {
+    const pid = projectIdRef.current;
+    if (!pid) return;
+    const serialized = JSON.stringify(dataRef.current);
+    if (serialized === lastSavedRef.current) return;
+    lastSavedRef.current = serialized;
+    try {
+      navigator.sendBeacon(
+        `/api/projects/${pid}`,
+        new Blob([serialized], { type: "application/json" }),
+      );
+    } catch {
+      fetch(`/api/projects/${pid}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: serialized,
+        keepalive: true,
+      }).catch(() => {});
+    }
+  }, []);
+
+  // Save on browser refresh / tab close via beforeunload
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      flushViaSendBeacon();
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [flushViaSendBeacon]);
+
   // Save immediately on unmount (best-effort via sendBeacon)
   useEffect(() => {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
-      const pid = projectIdRef.current;
-      if (!pid) return;
-      const serialized = JSON.stringify(dataRef.current);
-      if (serialized === lastSavedRef.current) return;
-      // Use sendBeacon for reliability on page unload (fire-and-forget POST)
-      try {
-        navigator.sendBeacon(
-          `/api/projects/${pid}`,
-          new Blob([serialized], { type: "application/json" }),
-        );
-      } catch {
-        // Fallback: fire-and-forget fetch
-        fetch(`/api/projects/${pid}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: serialized,
-          keepalive: true,
-        }).catch(() => {});
-      }
+      flushViaSendBeacon();
     };
-  }, []);
+  }, [flushViaSendBeacon]);
 
   return { saveNow };
 }

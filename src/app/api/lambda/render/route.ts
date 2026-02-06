@@ -16,6 +16,9 @@ import { executeApi } from "../../../../helpers/api-response";
 import type { z } from "zod";
 import type { RenderOptionsSchema } from "../../../../../types/constants";
 
+// Allow up to 60s for Lambda invocation (AWS cold starts can be slow)
+export const maxDuration = 60;
+
 export const POST = executeApi<RenderMediaOnLambdaOutput, typeof RenderRequest>(
   RenderRequest,
   async (req, body) => {

@@ -1,6 +1,9 @@
 import { streamText, generateObject } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
 import { z } from "zod";
+
+// Allow up to 60s for AI generation (streaming response)
+export const maxDuration = 60;
 import {
   getCombinedSkillContent,
   SKILL_DETECTION_PROMPT,

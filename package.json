@@ -9,7 +9,7 @@
   "homepage": "https://www.remotion.dev",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node deploy.mjs && next build",
     "start": "next start",
     "lint": "eslint .",
     "remotion": "remotion studio",
