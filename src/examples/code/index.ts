@@ -7,6 +7,13 @@ import { fallingSpheresExample } from "./falling-spheres";
 import { goldPriceChartExample } from "./gold-price-chart";
 import { typewriterHighlightExample } from "./typewriter-highlight";
 import { wordCarouselExample } from "./word-carousel";
+import { audioWaveformExample } from "./audio-waveform";
+import { podcastCardExample } from "./podcast-card";
+import { vinylRecordExample } from "./vinyl-record";
+import { musicPlayerExample } from "./music-player";
+import { spectrumCircleExample } from "./spectrum-circle";
+import { countdownExample } from "./countdown";
+import { quoteCardExample } from "./quote-card";
 
 export interface DLMMediaExample {
   id: string;
@@ -15,7 +22,7 @@ export interface DLMMediaExample {
   code: string;
   durationInFrames: number;
   fps: number;
-  category: "Text" | "Charts" | "Animation" | "3D" | "Other";
+  category: "Text" | "Charts" | "Animation" | "3D" | "Audio" | "Other";
 }
 
 export const examples: DLMMediaExample[] = [
@@ -28,6 +35,13 @@ export const examples: DLMMediaExample[] = [
   goldPriceChartExample,
   typewriterHighlightExample,
   wordCarouselExample,
+  audioWaveformExample,
+  podcastCardExample,
+  vinylRecordExample,
+  musicPlayerExample,
+  spectrumCircleExample,
+  countdownExample,
+  quoteCardExample,
 ];
 
 export function getExampleById(id: string): DLMMediaExample | undefined {

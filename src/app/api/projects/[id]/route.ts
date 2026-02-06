@@ -13,7 +13,7 @@ interface RouteParams {
 export async function GET(_req: Request, { params }: RouteParams) {
   try {
     const { id } = await params;
-    const project = getProject(id);
+    const project = await getProject(id);
     if (!project) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
@@ -32,7 +32,7 @@ export async function PATCH(req: Request, { params }: RouteParams) {
   try {
     const { id } = await params;
     const body = await req.json();
-    const project = updateProject(id, body);
+    const project = await updateProject(id, body);
     if (!project) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
@@ -51,7 +51,7 @@ export async function POST(req: Request, { params }: RouteParams) {
   try {
     const { id } = await params;
     const body = await req.json();
-    const project = updateProject(id, body);
+    const project = await updateProject(id, body);
     if (!project) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
@@ -69,7 +69,7 @@ export async function POST(req: Request, { params }: RouteParams) {
 export async function DELETE(_req: Request, { params }: RouteParams) {
   try {
     const { id } = await params;
-    const success = deleteProject(id);
+    const success = await deleteProject(id);
     if (!success) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }

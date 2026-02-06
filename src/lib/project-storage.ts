@@ -1,5 +1,4 @@
-import fs from "fs";
-import path from "path";
+import { getDb } from "./db";
 import type {
   Project,
   ProjectSummary,
@@ -7,37 +6,7 @@ import type {
   UpdateProjectInput,
 } from "@/types/project";
 
-const DATA_DIR = path.join(process.cwd(), "data");
-const PROJECTS_FILE = path.join(DATA_DIR, "projects.json");
-
-/** Ensure data directory and file exist */
-function ensureStorage(): void {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-  }
-  if (!fs.existsSync(PROJECTS_FILE)) {
-    fs.writeFileSync(PROJECTS_FILE, JSON.stringify([], null, 2), "utf-8");
-  }
-}
-
-/** Read all projects from disk */
-function readProjects(): Project[] {
-  ensureStorage();
-  try {
-    const data = fs.readFileSync(PROJECTS_FILE, "utf-8");
-    return JSON.parse(data) as Project[];
-  } catch {
-    return [];
-  }
-}
-
-/** Write all projects to disk */
-function writeProjects(projects: Project[]): void {
-  ensureStorage();
-  fs.writeFileSync(PROJECTS_FILE, JSON.stringify(projects, null, 2), "utf-8");
-}
-
-/** Generate a unique ID */
+/** Generate a unique project ID */
 function generateId(): string {
   return `proj_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 }
@@ -45,81 +14,147 @@ function generateId(): string {
 // ─── Public API ──────────────────────────────────────────────
 
 /** List all projects (returns summaries sorted by updatedAt desc) */
-export function listProjects(): ProjectSummary[] {
-  const projects = readProjects();
-  return projects
-    .map(({ id, name, status, starred, createdAt, updatedAt }) => ({
-      id,
-      name,
-      status,
-      starred,
-      createdAt,
-      updatedAt,
-    }))
-    .sort(
-      (a, b) =>
-        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
-    );
+export async function listProjects(): Promise<ProjectSummary[]> {
+  const sql = getDb();
+  const rows = await sql`
+    SELECT id, name, status, starred, created_at, updated_at
+    FROM projects
+    ORDER BY updated_at DESC
+  `;
+  return rows.map((r) => ({
+    id: r.id as string,
+    name: r.name as string,
+    status: r.status as Project["status"],
+    starred: r.starred as boolean,
+    createdAt: (r.created_at as Date).toISOString(),
+    updatedAt: (r.updated_at as Date).toISOString(),
+  }));
 }
 
 /** Get a single project by ID */
-export function getProject(id: string): Project | null {
-  const projects = readProjects();
-  return projects.find((p) => p.id === id) ?? null;
+export async function getProject(id: string): Promise<Project | null> {
+  const sql = getDb();
+  const rows = await sql`
+    SELECT * FROM projects WHERE id = ${id} LIMIT 1
+  `;
+  if (rows.length === 0) return null;
+  return rowToProject(rows[0]);
 }
 
 /** Create a new project */
-export function createProject(input: CreateProjectInput = {}): Project {
-  const projects = readProjects();
-  const now = new Date().toISOString();
+export async function createProject(
+  input: CreateProjectInput = {},
+): Promise<Project> {
+  const sql = getDb();
+  const id = generateId();
+  const name = input.name || "Untitled Project";
+  const prompt = input.prompt || "";
+  const model = input.model || "gpt-5.2:low";
 
-  const project: Project = {
-    id: generateId(),
-    name: input.name || "Untitled Project",
-    code: "",
-    prompt: input.prompt || "",
-    messages: [],
-    status: "draft",
-    starred: false,
-    durationInFrames: 150,
-    fps: 30,
-    model: input.model || "gpt-5.2:low",
-    createdAt: now,
-    updatedAt: now,
-  };
-
-  projects.push(project);
-  writeProjects(projects);
-  return project;
+  const rows = await sql`
+    INSERT INTO projects (id, name, prompt, model)
+    VALUES (${id}, ${name}, ${prompt}, ${model})
+    RETURNING *
+  `;
+  return rowToProject(rows[0]);
 }
 
 /** Update a project (partial update) */
-export function updateProject(
+export async function updateProject(
   id: string,
   input: UpdateProjectInput,
-): Project | null {
-  const projects = readProjects();
-  const index = projects.findIndex((p) => p.id === id);
-  if (index === -1) return null;
+): Promise<Project | null> {
+  const sql = getDb();
 
-  const updated: Project = {
-    ...projects[index],
-    ...input,
-    updatedAt: new Date().toISOString(),
-  };
+  // Build the SET clause dynamically based on provided fields
+  // We need to map camelCase to snake_case column names
+  const updates: string[] = [];
+  const values: unknown[] = [];
+  let paramIdx = 2; // $1 is the id
 
-  projects[index] = updated;
-  writeProjects(projects);
-  return updated;
+  if (input.name !== undefined) {
+    updates.push(`name = $${paramIdx++}`);
+    values.push(input.name);
+  }
+  if (input.code !== undefined) {
+    updates.push(`code = $${paramIdx++}`);
+    values.push(input.code);
+  }
+  if (input.prompt !== undefined) {
+    updates.push(`prompt = $${paramIdx++}`);
+    values.push(input.prompt);
+  }
+  if (input.messages !== undefined) {
+    updates.push(`messages = $${paramIdx++}`);
+    values.push(JSON.stringify(input.messages));
+  }
+  if (input.status !== undefined) {
+    updates.push(`status = $${paramIdx++}`);
+    values.push(input.status);
+  }
+  if (input.starred !== undefined) {
+    updates.push(`starred = $${paramIdx++}`);
+    values.push(input.starred);
+  }
+  if (input.durationInFrames !== undefined) {
+    updates.push(`duration_in_frames = $${paramIdx++}`);
+    values.push(input.durationInFrames);
+  }
+  if (input.fps !== undefined) {
+    updates.push(`fps = $${paramIdx++}`);
+    values.push(input.fps);
+  }
+  if (input.model !== undefined) {
+    updates.push(`model = $${paramIdx++}`);
+    values.push(input.model);
+  }
+
+  if (updates.length === 0) {
+    return getProject(id);
+  }
+
+  updates.push("updated_at = now()");
+
+  const query = `
+    UPDATE projects
+    SET ${updates.join(", ")}
+    WHERE id = $1
+    RETURNING *
+  `;
+
+  const rows = await sql.query(query, [id, ...values]);
+  if (rows.length === 0) return null;
+  return rowToProject(rows[0]);
 }
 
 /** Delete a project */
-export function deleteProject(id: string): boolean {
-  const projects = readProjects();
-  const index = projects.findIndex((p) => p.id === id);
-  if (index === -1) return false;
+export async function deleteProject(id: string): Promise<boolean> {
+  const sql = getDb();
+  const rows = await sql`
+    DELETE FROM projects WHERE id = ${id} RETURNING id
+  `;
+  return rows.length > 0;
+}
 
-  projects.splice(index, 1);
-  writeProjects(projects);
-  return true;
+// ─── Helpers ─────────────────────────────────────────────────
+
+/** Convert a database row to a Project object */
+function rowToProject(row: Record<string, unknown>): Project {
+  return {
+    id: row.id as string,
+    name: row.name as string,
+    code: row.code as string,
+    prompt: row.prompt as string,
+    messages:
+      typeof row.messages === "string"
+        ? JSON.parse(row.messages)
+        : (row.messages as Project["messages"]) ?? [],
+    status: row.status as Project["status"],
+    starred: row.starred as boolean,
+    durationInFrames: row.duration_in_frames as number,
+    fps: row.fps as number,
+    model: row.model as string,
+    createdAt: (row.created_at as Date).toISOString(),
+    updatedAt: (row.updated_at as Date).toISOString(),
+  };
 }

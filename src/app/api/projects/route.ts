@@ -4,7 +4,7 @@ import { listProjects, createProject } from "@/lib/project-storage";
 /** GET /api/projects — list all projects */
 export async function GET() {
   try {
-    const projects = listProjects();
+    const projects = await listProjects();
     return NextResponse.json(projects);
   } catch (error) {
     console.error("Failed to list projects:", error);
@@ -19,7 +19,7 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({}));
-    const project = createProject(body);
+    const project = await createProject(body);
     return NextResponse.json(project, { status: 201 });
   } catch (error) {
     console.error("Failed to create project:", error);

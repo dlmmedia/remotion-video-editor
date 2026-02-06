@@ -117,5 +117,12 @@ Code examples (complete working references):
 - example-gold-price-chart: bar chart with Y-axis labels, monthly data, staggered animations
 - example-typewriter-highlight: typewriter effect with cursor blink, pause, and word highlight
 - example-word-carousel: rotating words with crossfade and blur transitions
+- example-audio-waveform: pulsing equalizer bars with neon gradient and glow effects
+- example-podcast-card: animated podcast episode card with artwork, title, and play button
+- example-vinyl-record: spinning vinyl disc with grooves, label, and animated tonearm
+- example-music-player: sleek music player card with progress bar and playback controls
+- example-spectrum-circle: circular audio visualizer with radiating bars and neon glow
+- example-countdown: dramatic 5-to-1 countdown with pulse rings and GO finale
+- example-quote-card: word-by-word quote reveal with decorative marks and attribution
 
 Return an array of matching category names. Return an empty array if none apply.`;
