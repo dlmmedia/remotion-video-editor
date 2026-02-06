@@ -7,13 +7,10 @@ import {
   Clock,
   MoreHorizontal,
   Search,
-  ChevronDown,
   Film,
   Sparkles,
   Archive,
-  Trash2,
   Star,
-  StarOff,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 

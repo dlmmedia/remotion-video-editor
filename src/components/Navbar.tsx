@@ -7,7 +7,6 @@ import {
   Play,
   FolderOpen,
   Settings,
-  ChevronDown,
   Sparkles,
   Menu,
   X,
