@@ -9,7 +9,6 @@ import {
   Search,
   Film,
   Sparkles,
-  Archive,
   Star,
   Pencil,
   Trash2,
