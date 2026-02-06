@@ -563,6 +563,52 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
         </div>
       </div>
 
+      {/* Powered by Nebula X — bottom right badge */}
+      <div
+        className="absolute bottom-6 right-6 z-20 flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.04] backdrop-blur-md border border-violet-glow/15 animate-fade-in select-none"
+        style={{ animationDelay: "1.2s" }}
+      >
+        <span className="text-[11px] font-medium tracking-wide text-white/40 uppercase">
+          Powered by
+        </span>
+        <span className="text-[13px] font-bold tracking-tight bg-gradient-to-r from-violet-glow via-cyan-glow to-pink-glow bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient-x font-['Space_Grotesk',sans-serif]">
+          Nebula
+        </span>
+        {/* Stylized X inspired by the background NebulaX */}
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 120 120"
+          className="relative -ml-0.5"
+          style={{
+            filter:
+              "drop-shadow(0 0 6px rgba(124,58,237,0.7)) drop-shadow(0 0 12px rgba(6,182,212,0.35))",
+          }}
+        >
+          <defs>
+            <linearGradient id="badgeXGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#a78bfa" />
+              <stop offset="40%" stopColor="#7c3aed" />
+              <stop offset="70%" stopColor="#06b6d4" />
+              <stop offset="100%" stopColor="#ec4899" />
+            </linearGradient>
+            <linearGradient id="badgeXGrad2" x1="100%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#06b6d4" />
+              <stop offset="50%" stopColor="#7c3aed" />
+              <stop offset="100%" stopColor="#a78bfa" />
+            </linearGradient>
+          </defs>
+          {/* X strokes */}
+          <line x1="20" y1="20" x2="100" y2="100" stroke="url(#badgeXGrad1)" strokeWidth="12" strokeLinecap="round" />
+          <line x1="100" y1="20" x2="20" y2="100" stroke="url(#badgeXGrad2)" strokeWidth="12" strokeLinecap="round" />
+          {/* Bright intersection core */}
+          <circle cx="60" cy="60" r="8" fill="#e0d4ff" opacity="0.85">
+            <animate attributeName="r" values="6;9;6" dur="3s" repeatCount="indefinite" />
+            <animate attributeName="opacity" values="0.7;1;0.7" dur="3s" repeatCount="indefinite" />
+          </circle>
+        </svg>
+      </div>
+
       {/* Bottom gradient fade */}
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#030014] to-transparent z-10 pointer-events-none" />
     </section>
