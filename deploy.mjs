@@ -35,45 +35,57 @@ if (
   process.exit(0);
 }
 
-process.stdout.write("Deploying Lambda function... ");
+try {
+  process.stdout.write("Deploying Lambda function... ");
 
-const { functionName, alreadyExisted: functionAlreadyExisted } =
-  await deployFunction({
-    createCloudWatchLogGroup: true,
-    memorySizeInMb: RAM,
+  const { functionName, alreadyExisted: functionAlreadyExisted } =
+    await deployFunction({
+      createCloudWatchLogGroup: true,
+      memorySizeInMb: RAM,
+      region: REGION,
+      timeoutInSeconds: TIMEOUT,
+      diskSizeInMb: DISK,
+    });
+  console.log(
+    functionName,
+    functionAlreadyExisted ? "(already existed)" : "(created)",
+  );
+
+  process.stdout.write("Ensuring bucket... ");
+  const { bucketName, alreadyExisted: bucketAlreadyExisted } =
+    await getOrCreateBucket({
+      region: REGION,
+    });
+  console.log(
+    bucketName,
+    bucketAlreadyExisted ? "(already existed)" : "(created)",
+  );
+
+  process.stdout.write("Deploying site... ");
+  const { siteName } = await deploySite({
+    bucketName,
+    entryPoint: path.join(process.cwd(), "src", "remotion", "index.ts"),
+    siteName: SITE_NAME,
     region: REGION,
-    timeoutInSeconds: TIMEOUT,
-    diskSizeInMb: DISK,
+    options: { webpackOverride },
   });
-console.log(
-  functionName,
-  functionAlreadyExisted ? "(already existed)" : "(created)",
-);
 
-process.stdout.write("Ensuring bucket... ");
-const { bucketName, alreadyExisted: bucketAlreadyExisted } =
-  await getOrCreateBucket({
-    region: REGION,
-  });
-console.log(
-  bucketName,
-  bucketAlreadyExisted ? "(already existed)" : "(created)",
-);
+  console.log(siteName);
 
-process.stdout.write("Deploying site... ");
-const { siteName } = await deploySite({
-  bucketName,
-  entryPoint: path.join(process.cwd(), "src", "remotion", "index.ts"),
-  siteName: SITE_NAME,
-  region: REGION,
-  options: { webpackOverride },
-});
-
-console.log(siteName);
-
-console.log();
-console.log("You now have everything you need to render videos!");
-console.log("Re-run this command when:");
-console.log("  1) you changed the video template");
-console.log("  2) you changed config.mjs");
-console.log("  3) you upgraded Remotion to a newer version");
+  console.log();
+  console.log("You now have everything you need to render videos!");
+  console.log("Re-run this command when:");
+  console.log("  1) you changed the video template");
+  console.log("  2) you changed config.mjs");
+  console.log("  3) you upgraded Remotion to a newer version");
+} catch (err) {
+  console.error();
+  console.error("Lambda deployment failed:", err.message || err);
+  console.error(
+    "The app will still build, but Lambda rendering will not work until AWS permissions are configured.",
+  );
+  console.error(
+    "See https://www.remotion.dev/docs/lambda/permissions for required IAM policies.",
+  );
+  process.exit(0);
+}
