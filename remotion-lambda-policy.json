@@ -1,0 +1,93 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "HandleQuotas",
+      "Effect": "Allow",
+      "Action": [
+        "servicequotas:GetServiceQuota",
+        "servicequotas:GetAWSDefaultServiceQuota",
+        "servicequotas:RequestServiceQuotaIncrease",
+        "servicequotas:ListRequestedServiceQuotaChangeHistoryByQuota"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "HandleLambdas",
+      "Effect": "Allow",
+      "Action": [
+        "lambda:GetFunction",
+        "lambda:DeleteFunction",
+        "lambda:CreateFunction",
+        "lambda:ListFunctions",
+        "lambda:GetFunctionConfiguration",
+        "lambda:InvokeFunction",
+        "lambda:PutFunctionEventInvokeConfig",
+        "lambda:GetFunctionEventInvokeConfig",
+        "lambda:TagResource",
+        "lambda:ListTags",
+        "lambda:PutRuntimeManagementConfig"
+      ],
+      "Resource": "arn:aws:lambda:*:083093793394:function:remotion-render-*"
+    },
+    {
+      "Sid": "HandleLambdasList",
+      "Effect": "Allow",
+      "Action": ["lambda:ListFunctions"],
+      "Resource": "*"
+    },
+    {
+      "Sid": "HandleS3",
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:DeleteObject",
+        "s3:PutObject",
+        "s3:ListBucket",
+        "s3:CreateBucket",
+        "s3:PutBucketAcl",
+        "s3:GetBucketLocation",
+        "s3:DeleteBucket",
+        "s3:PutBucketWebsite",
+        "s3:DeleteBucketWebsite",
+        "s3:PutBucketLifecycleConfiguration",
+        "s3:PutBucketCORS"
+      ],
+      "Resource": "arn:aws:s3:::remotionlambda-*"
+    },
+    {
+      "Sid": "HandleS3List",
+      "Effect": "Allow",
+      "Action": ["s3:ListAllMyBuckets"],
+      "Resource": "*"
+    },
+    {
+      "Sid": "HandleCloudWatch",
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:PutRetentionPolicy",
+        "logs:DeleteLogGroup"
+      ],
+      "Resource": "arn:aws:logs:*:083093793394:log-group:/aws/lambda/remotion-render-*"
+    },
+    {
+      "Sid": "HandleIam",
+      "Effect": "Allow",
+      "Action": [
+        "iam:GetRole",
+        "iam:CreateRole",
+        "iam:PutRolePolicy",
+        "iam:AttachRolePolicy",
+        "iam:PassRole"
+      ],
+      "Resource": "arn:aws:iam::083093793394:role/remotion-lambda-role"
+    },
+    {
+      "Sid": "HandleSts",
+      "Effect": "Allow",
+      "Action": ["sts:GetCallerIdentity"],
+      "Resource": "*"
+    }
+  ]
+}
