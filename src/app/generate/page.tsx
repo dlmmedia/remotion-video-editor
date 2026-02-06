@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef, Suspense } from "react";
+import { useState, useCallback, useEffect, useRef, useMemo, Suspense } from "react";
 import type { NextPage } from "next";
 import { useSearchParams } from "next/navigation";
 import { CodeEditor } from "../../components/CodeEditor";
@@ -12,6 +12,8 @@ import { examples } from "../../examples/code";
 import { useAnimationState } from "../../hooks/useAnimationState";
 import { useConversationState } from "../../hooks/useConversationState";
 import { useAutoCorrection } from "../../hooks/useAutoCorrection";
+import { useProjectAutoSave } from "../../hooks/useProjects";
+import type { Project } from "../../types/project";
 import type {
   AssistantMetadata,
   ErrorCorrectionContext,
@@ -23,6 +25,7 @@ const MAX_CORRECTION_ATTEMPTS = 3;
 function GeneratePageContent() {
   const searchParams = useSearchParams();
   const initialPrompt = searchParams.get("prompt") || "";
+  const projectId = searchParams.get("projectId") || null;
 
   // If we have an initial prompt from URL, start in streaming state
   // so syntax highlighting is disabled from the beginning
@@ -45,6 +48,7 @@ function GeneratePageContent() {
     type: GenerationErrorType;
     failedEdit?: EditOperation;
   } | null>(null);
+  const [projectLoaded, setProjectLoaded] = useState(!projectId || willAutoStart);
 
   // Self-correction state
   const [errorCorrection, setErrorCorrection] =
@@ -64,6 +68,7 @@ function GeneratePageContent() {
     setPendingMessage,
     clearPendingMessage,
     isFirstGeneration,
+    loadMessages,
   } = useConversationState();
 
   // Sidebar collapse state
@@ -83,6 +88,68 @@ function GeneratePageContent() {
   const isStreamingRef = useRef(isStreaming);
   const codeRef = useRef(code);
   const chatSidebarRef = useRef<ChatSidebarRef>(null);
+
+  // ─── Load existing project data ─────────────────────────────────
+  useEffect(() => {
+    if (!projectId || willAutoStart) return; // New project, will be saved after generation
+
+    let cancelled = false;
+    async function loadProject() {
+      try {
+        const res = await fetch(`/api/projects/${projectId}`);
+        if (!res.ok || cancelled) return;
+        const project: Project = await res.json();
+
+        // Restore project state
+        if (project.code) {
+          setCode(project.code);
+          compileCode(project.code);
+          setHasGeneratedOnce(true);
+        }
+        if (project.messages && project.messages.length > 0) {
+          loadMessages(project.messages);
+        }
+        if (project.prompt) {
+          setPrompt(project.prompt);
+        }
+        if (project.durationInFrames) {
+          setDurationInFrames(project.durationInFrames);
+        }
+        if (project.fps) {
+          setFps(project.fps);
+        }
+        setProjectLoaded(true);
+      } catch (err) {
+        console.error("Failed to load project:", err);
+        setProjectLoaded(true);
+      }
+    }
+
+    loadProject();
+    return () => {
+      cancelled = true;
+    };
+    // Only run once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ─── Auto-save project state ────────────────────────────────────
+  const autoSaveData = useMemo(
+    () => ({
+      code,
+      messages,
+      durationInFrames,
+      fps,
+      status: "draft" as const,
+    }),
+    [code, messages, durationInFrames, fps],
+  );
+
+  useProjectAutoSave(
+    projectId && projectLoaded ? projectId : null,
+    autoSaveData,
+    3000,
+  );
 
   // Auto-correction hook - use combined code error (compilation + runtime)
   const { markAsAiGenerated, markAsUserEdited } = useAutoCorrection({

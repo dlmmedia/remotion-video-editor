@@ -1,7 +1,7 @@
-import { RemotionExample } from "./index";
+import { DLMMediaExample } from "./index";
 
-export const lottieAnimationCode = `import { AbsoluteFill, useCurrentFrame, useVideoConfig, spring, interpolate } from "remotion";
-import { Lottie } from "@remotion/lottie";
+export const lottieAnimationCode = `import { AbsoluteFill, useCurrentFrame, useVideoConfig, spring, interpolate } from "dlm-media";
+import { Lottie } from "@dlm-media/lottie";
 import { useState, useEffect } from "react";
 
 export const MyAnimation = () => {
@@ -72,13 +72,13 @@ export const MyAnimation = () => {
         }}
       >
         <div style={{ fontWeight: "bold", marginBottom: 4 }}>Glowing Fish Loader</div>
-        <div style={{ fontSize: 16, color: "#94a3b8" }}>by Mau Ali on LottieFiles</div>
+        <div style={{ fontSize: 16, color: "#94a3b8" }}>Lottie Animation</div>
       </div>
     </AbsoluteFill>
   );
 };`;
 
-export const lottieAnimationExample: RemotionExample = {
+export const lottieAnimationExample: DLMMediaExample = {
   id: "lottie-animation",
   name: "Lottie Fish Loader",
   description: "Glowing fish loader animation from LottieFiles",

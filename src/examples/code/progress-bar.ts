@@ -1,6 +1,6 @@
-import { RemotionExample } from "./index";
+import { DLMMediaExample } from "./index";
 
-export const progressBarCode = `import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate } from "remotion";
+export const progressBarCode = `import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate } from "dlm-media";
 
 export const MyAnimation = () => {
   const frame = useCurrentFrame();
@@ -81,7 +81,7 @@ export const MyAnimation = () => {
   );
 };`;
 
-export const progressBarExample: RemotionExample = {
+export const progressBarExample: DLMMediaExample = {
   id: "progress-bar",
   name: "Progress Bar",
   description: "Animated progress bar from 0 to 100%",

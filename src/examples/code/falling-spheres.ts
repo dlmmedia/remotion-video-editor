@@ -1,7 +1,7 @@
-import { RemotionExample } from "./index";
+import { DLMMediaExample } from "./index";
 
-export const fallingSpheresCode = `import { AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";
-import { ThreeCanvas } from "@remotion/three";
+export const fallingSpheresCode = `import { AbsoluteFill, useCurrentFrame, useVideoConfig } from "dlm-media";
+import { ThreeCanvas } from "@dlm-media/three";
 
 export const MyAnimation = () => {
   const frame = useCurrentFrame();
@@ -105,7 +105,7 @@ export const MyAnimation = () => {
   );
 };`;
 
-export const fallingSpheresExample: RemotionExample = {
+export const fallingSpheresExample: DLMMediaExample = {
   id: "falling-spheres",
   name: "Golden Bouncing Spheres",
   description: "Glowing golden spheres with physics and orbiting camera",

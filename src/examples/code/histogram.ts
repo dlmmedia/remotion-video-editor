@@ -1,7 +1,7 @@
-import { RemotionExample } from "./index";
+import { DLMMediaExample } from "./index";
 
-export const histogramCode = `import { AbsoluteFill, useCurrentFrame, useVideoConfig, spring } from "remotion";
-import { Rect } from "@remotion/shapes";
+export const histogramCode = `import { AbsoluteFill, useCurrentFrame, useVideoConfig, spring } from "dlm-media";
+import { Rect } from "@dlm-media/shapes";
 
 export const MyAnimation = () => {
   const frame = useCurrentFrame();
@@ -92,10 +92,10 @@ export const MyAnimation = () => {
   );
 };`;
 
-export const histogramExample: RemotionExample = {
+export const histogramExample: DLMMediaExample = {
   id: "histogram",
   name: "Histogram",
-  description: "Animated bar chart using @remotion/shapes",
+  description: "Animated bar chart using @dlm-media/shapes",
   category: "Charts",
   durationInFrames: 120,
   fps: 30,

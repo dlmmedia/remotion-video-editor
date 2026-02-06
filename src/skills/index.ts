@@ -108,7 +108,7 @@ Guidance categories (patterns and rules):
 - spring-physics: bouncy animations, organic motion, elastic effects, overshoot animations
 
 Code examples (complete working references):
-- example-histogram: animated bar chart with spring animations and @remotion/shapes
+- example-histogram: animated bar chart with spring animations and @dlm-media/shapes
 - example-progress-bar: loading bar animation from 0 to 100%
 - example-text-rotation: rotating words with fade/blur transitions
 - example-falling-spheres: 3D bouncing spheres with ThreeJS and physics simulation

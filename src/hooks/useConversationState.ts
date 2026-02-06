@@ -98,6 +98,25 @@ export function useConversationState() {
     });
   }, []);
 
+  /** Load messages from a saved project (for restoring state) */
+  const loadMessages = useCallback((savedMessages: ConversationMessage[]) => {
+    // Find the last assistant message to restore the AI code reference
+    const lastAssistant = [...savedMessages]
+      .reverse()
+      .find((m) => m.role === "assistant" && m.codeSnapshot);
+    if (lastAssistant?.codeSnapshot) {
+      lastAiCodeRef.current = lastAssistant.codeSnapshot;
+    }
+
+    setState({
+      messages: savedMessages,
+      hasManualEdits: false,
+      lastGenerationTimestamp:
+        lastAssistant?.timestamp ?? null,
+      pendingMessage: undefined,
+    });
+  }, []);
+
   const setPendingMessage = useCallback((skills?: string[]) => {
     setState((prev) => ({
       ...prev,
@@ -144,6 +163,7 @@ export function useConversationState() {
     addErrorMessage,
     markManualEdit,
     clearConversation,
+    loadMessages,
     getFullContext,
     getPreviouslyUsedSkills,
     setPendingMessage,

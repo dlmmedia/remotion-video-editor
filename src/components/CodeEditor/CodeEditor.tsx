@@ -265,7 +265,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
 
     // Add type declarations for all whitelisted libraries
     ts?.typescriptDefaults?.addExtraLib(
-      `declare module 'remotion' {
+      `declare module 'dlm-media' {
         export const AbsoluteFill: React.FC<React.HTMLAttributes<HTMLDivElement>>;
         export function useCurrentFrame(): number;
         export function useVideoConfig(): { fps: number; durationInFrames: number; width: number; height: number };
@@ -273,11 +273,11 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         export function spring(options: { frame: number; fps: number; config?: any; durationInFrames?: number }): number;
         export const Sequence: React.FC<{ from?: number; durationInFrames?: number; children: React.ReactNode }>;
       }`,
-      "remotion.d.ts",
+      "dlm-media.d.ts",
     );
 
     ts?.typescriptDefaults?.addExtraLib(
-      `declare module '@remotion/shapes' {
+      `declare module '@dlm-media/shapes' {
         interface ShapeProps {
           fill?: string;
           stroke?: string;
@@ -291,18 +291,18 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         export const Polygon: React.FC<ShapeProps & { radius: number; points: number }>;
         export const Ellipse: React.FC<ShapeProps & { rx: number; ry: number }>;
       }`,
-      "remotion-shapes.d.ts",
+      "dlm-media-shapes.d.ts",
     );
 
     ts?.typescriptDefaults?.addExtraLib(
-      `declare module '@remotion/lottie' {
+      `declare module '@dlm-media/lottie' {
         export const Lottie: React.FC<{ animationData?: any; src?: string; playbackRate?: number; style?: React.CSSProperties }>;
       }`,
-      "remotion-lottie.d.ts",
+      "dlm-media-lottie.d.ts",
     );
 
     ts?.typescriptDefaults?.addExtraLib(
-      `declare module '@remotion/three' {
+      `declare module '@dlm-media/three' {
         export const ThreeCanvas: React.FC<{
           children?: any;
           style?: React.CSSProperties;
@@ -313,7 +313,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
           [key: string]: any;
         }>;
       }`,
-      "remotion-three.d.ts",
+      "dlm-media-three.d.ts",
     );
 
     ts?.typescriptDefaults?.addExtraLib(

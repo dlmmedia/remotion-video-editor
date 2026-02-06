@@ -1,4 +1,4 @@
-import { RemotionExample } from "./index";
+import { DLMMediaExample } from "./index";
 
 export const typewriterHighlightCode = `import React from "react";
 import {
@@ -7,7 +7,7 @@ import {
   AbsoluteFill,
   interpolate,
   spring,
-} from "remotion";
+} from "dlm-media";
 
 export const MyAnimation = () => {
   /*
@@ -188,7 +188,7 @@ export const MyAnimation = () => {
   );
 };`;
 
-export const typewriterHighlightExample: RemotionExample = {
+export const typewriterHighlightExample: DLMMediaExample = {
   id: "typewriter-highlight",
   name: "Typewriter with Highlight",
   description: "Typewriter effect with blinking cursor and spring-animated word highlight",

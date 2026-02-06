@@ -40,3 +40,6 @@ build
 
 # uploaded media files
 /public/uploads/
+
+# project data storage
+/data/

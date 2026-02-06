@@ -8,7 +8,7 @@ import { goldPriceChartExample } from "./gold-price-chart";
 import { typewriterHighlightExample } from "./typewriter-highlight";
 import { wordCarouselExample } from "./word-carousel";
 
-export interface RemotionExample {
+export interface DLMMediaExample {
   id: string;
   name: string;
   description: string;
@@ -18,7 +18,7 @@ export interface RemotionExample {
   category: "Text" | "Charts" | "Animation" | "3D" | "Other";
 }
 
-export const examples: RemotionExample[] = [
+export const examples: DLMMediaExample[] = [
   textRotationExample,
   histogramExample,
   progressBarExample,
@@ -30,12 +30,12 @@ export const examples: RemotionExample[] = [
   wordCarouselExample,
 ];
 
-export function getExampleById(id: string): RemotionExample | undefined {
+export function getExampleById(id: string): DLMMediaExample | undefined {
   return examples.find((e) => e.id === id);
 }
 
 export function getExamplesByCategory(
-  category: RemotionExample["category"],
-): RemotionExample[] {
+  category: DLMMediaExample["category"],
+): DLMMediaExample[] {
   return examples.filter((e) => e.category === category);
 }

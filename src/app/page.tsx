@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import type { NextPage } from "next";
 import { useRouter } from "next/navigation";
 import {
@@ -29,6 +29,7 @@ import type { ModelId } from "@/types/generation";
 import { MODELS } from "@/types/generation";
 import { fileToBase64 } from "@/helpers/capture-frame";
 import { examplePrompts } from "@/examples/prompts";
+import { useProjects } from "@/hooks/useProjects";
 import {
   Select,
   SelectContent,
@@ -63,21 +64,59 @@ const Home: NextPage = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const promptRef = useRef<HTMLTextAreaElement>(null);
 
-  const handleNavigate = (promptText: string, modelId: ModelId, images?: string[]) => {
-    setIsNavigating(true);
-    if (images && images.length > 0) {
-      sessionStorage.setItem("initialAttachedImages", JSON.stringify(images));
-    } else {
-      sessionStorage.removeItem("initialAttachedImages");
-    }
-    const params = new URLSearchParams({ prompt: promptText, model: modelId });
-    router.push(`/generate?${params.toString()}`);
-  };
+  // Real project management
+  const {
+    projects,
+    isLoading: projectsLoading,
+    createProject,
+    renameProject,
+    deleteProject,
+    toggleStar,
+  } = useProjects();
+
+  const handleNavigate = useCallback(
+    async (promptText: string, modelId: ModelId, images?: string[]) => {
+      setIsNavigating(true);
+
+      // Create a new project for this generation
+      const project = await createProject({
+        name: promptText.slice(0, 60) + (promptText.length > 60 ? "..." : ""),
+        prompt: promptText,
+        model: modelId,
+      });
+
+      if (!project) {
+        setIsNavigating(false);
+        return;
+      }
+
+      if (images && images.length > 0) {
+        sessionStorage.setItem(
+          "initialAttachedImages",
+          JSON.stringify(images),
+        );
+      } else {
+        sessionStorage.removeItem("initialAttachedImages");
+      }
+
+      const params = new URLSearchParams({
+        prompt: promptText,
+        model: modelId,
+        projectId: project.id,
+      });
+      router.push(`/generate?${params.toString()}`);
+    },
+    [createProject, router],
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!prompt.trim() || isNavigating) return;
-    handleNavigate(prompt, model, attachedImages.length > 0 ? attachedImages : undefined);
+    handleNavigate(
+      prompt,
+      model,
+      attachedImages.length > 0 ? attachedImages : undefined,
+    );
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -88,7 +127,9 @@ const Home: NextPage = () => {
   };
 
   const addImages = (newImages: string[]) => {
-    setAttachedImages((prev) => [...prev, ...newImages].slice(0, MAX_ATTACHED_IMAGES));
+    setAttachedImages((prev) =>
+      [...prev, ...newImages].slice(0, MAX_ATTACHED_IMAGES),
+    );
   };
 
   const removeImage = (index: number) => {
@@ -105,7 +146,9 @@ const Home: NextPage = () => {
 
   const handlePaste = async (e: React.ClipboardEvent) => {
     const items = Array.from(e.clipboardData.items);
-    const imageItems = items.filter((item) => item.type.startsWith("image/"));
+    const imageItems = items.filter((item) =>
+      item.type.startsWith("image/"),
+    );
     if (imageItems.length > 0) {
       e.preventDefault();
       const files = imageItems
@@ -138,6 +181,41 @@ const Home: NextPage = () => {
     setTimeout(() => promptRef.current?.focus(), 300);
   };
 
+  const handleNewProject = useCallback(() => {
+    setPrompt("");
+    setAttachedImages([]);
+    promptRef.current?.focus();
+  }, []);
+
+  const handleSelectProject = useCallback(
+    (id: string) => {
+      // Navigate to the generate page for this project
+      router.push(`/generate?projectId=${id}`);
+    },
+    [router],
+  );
+
+  const handleRenameProject = useCallback(
+    async (id: string, newName: string) => {
+      await renameProject(id, newName);
+    },
+    [renameProject],
+  );
+
+  const handleDeleteProject = useCallback(
+    async (id: string) => {
+      await deleteProject(id);
+    },
+    [deleteProject],
+  );
+
+  const handleToggleStar = useCallback(
+    async (id: string) => {
+      await toggleStar(id);
+    },
+    [toggleStar],
+  );
+
   // Hero mode
   if (!showStudio) {
     return (
@@ -158,11 +236,13 @@ const Home: NextPage = () => {
         <ProjectsSidebar
           isOpen={sidebarOpen}
           onToggle={() => setSidebarOpen(!sidebarOpen)}
-          onNewProject={() => {
-            setPrompt("");
-            setAttachedImages([]);
-            promptRef.current?.focus();
-          }}
+          onNewProject={handleNewProject}
+          onSelectProject={handleSelectProject}
+          projects={projects}
+          isLoading={projectsLoading}
+          onRenameProject={handleRenameProject}
+          onDeleteProject={handleDeleteProject}
+          onToggleStar={handleToggleStar}
         />
 
         {/* Sidebar toggle */}
@@ -193,15 +273,23 @@ const Home: NextPage = () => {
                 </span>
               </div>
               <h1 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight font-['Space_Grotesk',sans-serif]">
-                What will you <span className="bg-gradient-to-r from-violet-glow to-cyan-glow bg-clip-text text-transparent">create</span>?
+                What will you{" "}
+                <span className="bg-gradient-to-r from-violet-glow to-cyan-glow bg-clip-text text-transparent">
+                  create
+                </span>
+                ?
               </h1>
               <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                Describe your vision. Our agent writes the code, renders the frames.
+                Describe your vision. Our agent writes the code, renders the
+                frames.
               </p>
             </div>
 
             {/* Mode toggle */}
-            <div className="flex justify-center animate-fade-in" style={{ animationDelay: "0.1s" }}>
+            <div
+              className="flex justify-center animate-fade-in"
+              style={{ animationDelay: "0.1s" }}
+            >
               <div className="inline-flex items-center bg-accent/30 rounded-lg border border-violet-glow/10 p-0.5">
                 <button
                   type="button"
@@ -232,7 +320,10 @@ const Home: NextPage = () => {
 
             {/* ─── WIZARD MODE ───────────────────────────────────────── */}
             {studioMode === "wizard" ? (
-              <div className="animate-slide-up" style={{ animationDelay: "0.2s" }}>
+              <div
+                className="animate-slide-up"
+                style={{ animationDelay: "0.2s" }}
+              >
                 <PromptWizard
                   onGenerate={(assembledPrompt, modelId, images) => {
                     handleNavigate(assembledPrompt, modelId, images);
@@ -297,7 +388,9 @@ const Home: NextPage = () => {
                           : "A cinematic product launch with particles..."
                       }
                       className="relative z-10 w-full bg-transparent text-foreground placeholder:text-muted-foreground-dim focus:outline-none resize-none overflow-y-auto text-base min-h-[60px] max-h-[200px]"
-                      style={{ fieldSizing: "content" } as React.CSSProperties}
+                      style={
+                        { fieldSizing: "content" } as React.CSSProperties
+                      }
                       disabled={isNavigating}
                     />
 
@@ -338,7 +431,10 @@ const Home: NextPage = () => {
                           variant="ghost"
                           size="icon-sm"
                           onClick={() => fileInputRef.current?.click()}
-                          disabled={isNavigating || attachedImages.length >= MAX_ATTACHED_IMAGES}
+                          disabled={
+                            isNavigating ||
+                            attachedImages.length >= MAX_ATTACHED_IMAGES
+                          }
                           className="text-muted-foreground hover:text-foreground hover:bg-violet-glow/10"
                           title="Attach images"
                         >
