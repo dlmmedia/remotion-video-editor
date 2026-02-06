@@ -3,7 +3,6 @@
 import { useState, useCallback, useEffect, useRef, Suspense } from "react";
 import type { NextPage } from "next";
 import { useSearchParams } from "next/navigation";
-import { Loader2 } from "lucide-react";
 import { CodeEditor } from "../../components/CodeEditor";
 import { AnimationPlayer } from "../../components/AnimationPlayer";
 import { PageLayout } from "../../components/PageLayout";
