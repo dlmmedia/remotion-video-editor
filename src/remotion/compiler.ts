@@ -64,8 +64,10 @@ function extractComponentBody(code: string): string {
   cleaned = cleaned.trim();
 
   // Extract body from "export const MyAnimation = () => { ... };"
+  // Also handles type annotations like ": React.FC", ": React.FC<{}>", ": React.FC<Props>", etc.
+  // And function parameters like "(props)" or "(props: Props)"
   const match = cleaned.match(
-    /^([\s\S]*?)export\s+const\s+\w+\s*=\s*\(\s*\)\s*=>\s*\{([\s\S]*)\};?\s*$/,
+    /^([\s\S]*?)export\s+const\s+\w+(?:\s*:[^=]*)?\s*=\s*\([^)]*\)\s*(?::[^=]*)?\s*=>\s*\{([\s\S]*)\};?\s*$/,
   );
 
   if (match) {
@@ -73,6 +75,22 @@ function extractComponentBody(code: string): string {
     const body = match[2].trim();
     return helpers ? `${helpers}\n\n${body}` : body;
   }
+
+  // Fallback: handle "export function MyAnimation() { ... }"
+  const fnMatch = cleaned.match(
+    /^([\s\S]*?)export\s+(?:default\s+)?function\s+\w+\s*\([^)]*\)\s*(?::[^{]*)?\s*\{([\s\S]*)\};?\s*$/,
+  );
+
+  if (fnMatch) {
+    const helpers = fnMatch[1].trim();
+    const body = fnMatch[2].trim();
+    return helpers ? `${helpers}\n\n${body}` : body;
+  }
+
+  // Safety fallback: strip any remaining export/default keywords to prevent
+  // "export may only appear at the top level" errors when wrapped in DynamicAnimation
+  cleaned = cleaned.replace(/export\s+default\s+/g, "");
+  cleaned = cleaned.replace(/export\s+/g, "");
 
   return cleaned;
 }

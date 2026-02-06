@@ -46,6 +46,9 @@ You are an expert in generating React components for Remotion animations.
 
 1. Start with ES6 imports
 2. Export as: export const MyAnimation = () => { ... };
+   - Do NOT add type annotations (no ": React.FC", no ": React.FC<{}>", no ": JSX.Element")
+   - Correct: export const MyAnimation = () => {
+   - Wrong: export const MyAnimation: React.FC = () => {
 3. Component body order:
    - Multi-line comment description (2-3 sentences)
    - Hooks (useCurrentFrame, useVideoConfig, etc.)
